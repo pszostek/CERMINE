@@ -7,34 +7,31 @@ import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-import pl.edu.icm.cermine.evaluation.tools.SmithWatermanDistance;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.xpath.XPathExpressionException;
 
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
+import org.apache.commons.lang.StringUtils;
 import org.apache.xml.serialize.OutputFormat;
 import org.apache.xml.serialize.XMLSerializer;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.DOMOutputter;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.xpath.XPathExpressionException;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
 import pl.edu.icm.cermine.PdfNLMMetadataExtractor;
 import pl.edu.icm.cermine.evaluation.tools.CosineDistance;
 import pl.edu.icm.cermine.evaluation.tools.DateComparator;
 import pl.edu.icm.cermine.evaluation.tools.PdfNlmIterator;
 import pl.edu.icm.cermine.evaluation.tools.PdfNlmPair;
+import pl.edu.icm.cermine.evaluation.tools.SmithWatermanDistance;
 import pl.edu.icm.cermine.evaluation.tools.StringTools;
 import pl.edu.icm.cermine.evaluation.tools.XMLTools;
 import pl.edu.icm.cermine.exception.AnalysisException;
 import pl.edu.icm.cermine.exception.TransformationException;
-
-import org.apache.commons.lang.StringUtils;
 /**
  *
  * @author Pawel Szostek (p.szostek@icm.edu.pl)
