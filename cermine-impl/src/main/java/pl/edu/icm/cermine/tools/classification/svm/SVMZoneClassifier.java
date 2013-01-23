@@ -7,11 +7,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import libsvm.svm;
-import libsvm.svm_node;
 import pl.edu.icm.cermine.exception.AnalysisException;
 import pl.edu.icm.cermine.structure.ZoneClassifier;
 import pl.edu.icm.cermine.structure.model.BxDocument;
@@ -26,10 +23,10 @@ public class SVMZoneClassifier extends SVMClassifier<BxZone, BxPage, BxZoneLabel
 	public SVMZoneClassifier(FeatureVectorBuilder<BxZone, BxPage> featureVectorBuilder) {
 		super(featureVectorBuilder, BxZoneLabel.class);
 	}
-	
+
 	@Override
 	public BxDocument classifyZones(BxDocument document) throws AnalysisException 
-	{       
+ {
     	for (BxZone zone: document.asZones()) {
     		
 			BxZoneLabel predicted = predictLabel(zone, zone.getParent());
