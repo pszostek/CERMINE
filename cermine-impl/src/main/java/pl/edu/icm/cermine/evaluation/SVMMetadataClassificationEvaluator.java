@@ -46,6 +46,7 @@ public class SVMMetadataClassificationEvaluator extends CrossvalidatingZoneClass
         zoneClassifier.buildClassifier(trainingSamplesOversampled);
 //        zoneClassifier.saveModel("svm_meta_classifier");
 //        zoneClassifier = new SVMMetadataZoneClassifier();
+
         return zoneClassifier;
     }
 

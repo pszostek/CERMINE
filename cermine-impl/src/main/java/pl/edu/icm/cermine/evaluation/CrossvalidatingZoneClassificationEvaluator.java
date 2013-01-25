@@ -112,7 +112,6 @@ public abstract class CrossvalidatingZoneClassificationEvaluator {
             SVMZoneClassifier zoneClassifier = getZoneClassifier(trainingSamples);
 
             for (TrainingSample<BxZoneLabel> testSample : testSamples) {
-//            	System.out.println(Arrays.toString(testSample.getFeatures().getFeatures()));
             	BxZoneLabel expectedClass = testSample.getLabel();
                 BxZoneLabel inferedClass = zoneClassifier.predictLabel(testSample);
                 ClassificationResults documentResults = compareItems(expectedClass, inferedClass);
