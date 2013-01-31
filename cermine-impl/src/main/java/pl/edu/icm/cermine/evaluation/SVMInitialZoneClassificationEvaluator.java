@@ -34,7 +34,7 @@ public class SVMInitialZoneClassificationEvaluator extends CrossvalidatingZoneCl
         SVMZoneClassifier zoneClassifier = new SVMZoneClassifier(SVMInitialZoneClassifier.getFeatureVectorBuilder());
         svm_parameter param = SVMZoneClassifier.getDefaultParam();
         param.svm_type = svm_parameter.C_SVC;
-		param.gamma = 0.5;
+        param.gamma = 0.5;
         param.C = 64.0;
         param.kernel_type = svm_parameter.RBF;
         zoneClassifier.setParameter(param);
