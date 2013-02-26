@@ -13,6 +13,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
 import pl.edu.icm.cermine.evaluation.tools.EvaluationUtils;
+import pl.edu.icm.cermine.evaluation.tools.PenaltyCalculator;
 import pl.edu.icm.cermine.exception.AnalysisException;
 import pl.edu.icm.cermine.exception.TransformationException;
 import pl.edu.icm.cermine.structure.SVMInitialZoneClassifier;
@@ -33,8 +34,19 @@ public class SVMInitialBuilder {
         // so that in the learning examples all classes are
         // represented equally
 
-        SampleSelector<BxZoneLabel> selector = new UndersamplingSelector<BxZoneLabel>(1.3);
-        trainingSamples = selector.pickElements(trainingSamples);
+        PenaltyCalculator pc = new PenaltyCalculator(trainingSamples);
+        int[] intClasses = new int[pc.getClasses().size()];
+        double[] classesWeights = new double[pc.getClasses().size()];
+        
+        Integer labelIdx = 0;
+        for(BxZoneLabel label: pc.getClasses()) {
+        	intClasses[labelIdx] = label.ordinal();
+        	classesWeights[labelIdx] = pc.getPenaltyWeigth(label);
+        	++labelIdx;
+        }
+		
+        //SampleSelector<BxZoneLabel> selector = new UndersamplingSelector<BxZoneLabel>(1.3);
+        //trainingSamples = selector.pickElements(trainingSamples);
 
         FeatureVectorBuilder<BxZone, BxPage> featureVectorBuilder = SVMInitialZoneClassifier.getFeatureVectorBuilder();
         SVMZoneClassifier zoneClassifier = new SVMZoneClassifier(featureVectorBuilder);
@@ -44,6 +56,8 @@ public class SVMInitialBuilder {
 		param.C = C;
 		param.degree = degree;
 		param.kernel_type = kernelType;
+		param.weight_label = intClasses;
+		param.weight = classesWeights;
 
 		zoneClassifier.setParameter(param);
         zoneClassifier.buildClassifier(trainingSamples);
@@ -64,7 +78,7 @@ public class SVMInitialBuilder {
         CommandLineParser parser = new GnuParser();
         CommandLine line = parser.parse(options, args);
         if (!(line.hasOption("input") && line.hasOption("output") && line.hasOption("kernel") && line.hasOption("g") && line.hasOption("C") && line.hasOption("degree"))) {
-            System.err.println("Usage: <intput path> <output model path>");
+            System.err.println("Usage: ");
             System.exit(1);
         }
 
