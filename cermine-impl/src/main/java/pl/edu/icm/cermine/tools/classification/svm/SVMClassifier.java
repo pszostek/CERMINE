@@ -124,7 +124,7 @@ public abstract class SVMClassifier<S, T, E extends Enum<E>> {
 	}
 	
 	public E predictLabel(TrainingSample<E> sample) {
-		svm_node[] instance = buildDatasetForClassification(sample.getFeatures());
+		svm_node[] instance = buildDatasetForClassification(sample.getFeatureVector());
 		Integer predictedVal = ((Double)svm.svm_predict(model, instance)).intValue();
 		return enumClassObj.getEnumConstants()[predictedVal];
 	}
@@ -133,12 +133,12 @@ public abstract class SVMClassifier<S, T, E extends Enum<E>> {
 	{
 		svm_problem problem = new svm_problem();
 		problem.l = trainingElements.size();
-		problem.x = new svm_node[problem.l][trainingElements.get(0).getFeatures().size()];
+		problem.x = new svm_node[problem.l][trainingElements.get(0).getFeatureVector().size()];
 		problem.y = new double[problem.l];
 		
 		Integer elemIdx = 0;
 		for(TrainingSample<E> trainingElem : trainingElements) {
-			FeatureVector scaledFV = scaler.scaleFeatureVector(trainingElem.getFeatures());
+			FeatureVector scaledFV = scaler.scaleFeatureVector(trainingElem.getFeatureVector());
 			Integer featureIdx = 0;
 			for(Double val: scaledFV.getFeatures()) {
 				svm_node cur = new svm_node();
