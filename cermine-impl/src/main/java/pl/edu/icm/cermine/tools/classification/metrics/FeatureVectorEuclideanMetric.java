@@ -18,7 +18,7 @@ public class FeatureVectorEuclideanMetric implements FeatureVectorDistanceMetric
             
         for (String feature : featureNames1) {
             if (featureNames2.contains(feature)) {
-                sum += Math.pow(vector1.getFeature(feature) - vector2.getFeature(feature), 2);
+                sum += Math.pow(vector1.getFeatureValue(feature) - vector2.getFeatureValue(feature), 2);
             }
         }
            

@@ -52,7 +52,7 @@ public class FeatureVectorScalerImpl implements FeatureVectorScaler {
 
 			int featureIdx = 0;
 			for(String name: names) {
-				double val = fv.getFeature(name);
+				double val = fv.getFeatureValue(name);
 				if(val > limits[featureIdx].max) {
 					limits[featureIdx].setMax(val);
 				}

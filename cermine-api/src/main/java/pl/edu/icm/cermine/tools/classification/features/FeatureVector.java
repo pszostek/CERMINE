@@ -15,7 +15,7 @@ public class FeatureVector implements Cloneable {
     private List<String> names = new ArrayList<String>();
     private List<Double> values = new ArrayList<Double>();
 
-    public double getFeature(String name) {
+    public double getFeatureValue(String name) {
         if (!names.contains(name)) {
             throw new IllegalArgumentException("Feature vector does not contain feature '" + name + "'.");
         }
@@ -45,7 +45,7 @@ public class FeatureVector implements Cloneable {
     	return values.size();
     }
 
-	public Double[] getFeatures() {
+	public Double[] getFeatureValues() {
 		return values.toArray(new Double[values.size()]);
 	}
 
