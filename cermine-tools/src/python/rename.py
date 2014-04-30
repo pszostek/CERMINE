@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+""" Walks a directory tree and renames (nlm, pdf) files according to NML's article-id """
+
 import os
 import sys
 import libxml2

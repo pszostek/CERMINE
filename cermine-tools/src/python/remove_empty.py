@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+""" Writes to a file a list of TrueViz files with a ratio of known to all zones"""
+
 from __future__ import division 
 from segmedit.fasttrueviz import load
 import sys
