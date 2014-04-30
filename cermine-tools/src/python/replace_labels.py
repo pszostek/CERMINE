@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+
+""" Replaces a string to a different one according to 'pairs' list """
+
 import os
 import sys
 

@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+""" Remove directories with a single file"""
+
 from multiprocessing import Pool
 from functools import partial
 import os, re
