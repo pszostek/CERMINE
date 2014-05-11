@@ -39,7 +39,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import extra166y.ParallelArray;
 import pl.edu.icm.cermine.PdfBxStructureExtractor;
 import pl.edu.icm.cermine.evaluation.tools.CosineDistance;
 import pl.edu.icm.cermine.evaluation.tools.SmithWatermanDistance;
@@ -801,6 +800,7 @@ public class PubmedXMLGenerator {
         try { 
             String pdfPath = pathPair.getPdfPath();
             String nxmlPath = pathPair.getNlmPath();
+            System.err.println("Converting " + pdfPath);
             
             File xmlFile = new File(StringTools.getTrueVizPath(nxmlPath));
             if (xmlFile.exists()) {
@@ -817,15 +817,15 @@ public class PubmedXMLGenerator {
             BxDocument bxDoc = datasetGenerator.generateTrueViz(pdfStream, nxmlStream);
             
             int keys = 0;
-            Set<BxZoneLabel> set = EnumSet.noneOf(BxZoneLabel.class);
+            Set<BxZoneLabel> setOfAssignedLabels = EnumSet.noneOf(BxZoneLabel.class);
             int total = 0;
-            int known = 0;
+            int labeled = 0;
             for (BxZone z: bxDoc.asZones()) {
                 total++;
                 if (z.getLabel() != null) {
-                    known++;
+                    labeled++;
                     if (z.getLabel().isOfCategoryOrGeneral(BxZoneLabelCategory.CAT_METADATA)) {
-                        set.add(z.getLabel());
+                        setOfAssignedLabels.add(z.getLabel());
                     }
                     if (BxZoneLabel.REFERENCES.equals(z.getLabel())) {
                         keys = 1;
@@ -833,32 +833,33 @@ public class PubmedXMLGenerator {
                 }
             }
             
-            if (set.contains(BxZoneLabel.MET_AFFILIATION)) {
+            if (setOfAssignedLabels.contains(BxZoneLabel.MET_AFFILIATION)) {
                 keys++;
             }
-            if (set.contains(BxZoneLabel.MET_AUTHOR)) {
+            if (setOfAssignedLabels.contains(BxZoneLabel.MET_AUTHOR)) {
                 keys++;
             }
-            if (set.contains(BxZoneLabel.MET_BIB_INFO)) {
+            if (setOfAssignedLabels.contains(BxZoneLabel.MET_BIB_INFO)) {
                 keys++;
             }
-            if (set.contains(BxZoneLabel.MET_TITLE)) {
+            if (setOfAssignedLabels.contains(BxZoneLabel.MET_TITLE)) {
                 keys++;
             }
             int coverage = 0;
             if (total > 0) {
-                coverage = known*100/total;
+                coverage = labeled*100/total;
             }
-            System.out.print(coverage+" "+set.size()+" "+keys);
+            System.out.print(coverage+" "+setOfAssignedLabels.size()+" "+keys);
 
-            FileWriter fstream = new FileWriter(
-                    StringTools.getTrueVizPath(nxmlPath).replace(".xml", "."+coverage+".cxml"));
+
+            String trueVizPath = StringTools.getTrueVizPath(nxmlPath).replace(".xml", ".cxml");
+            System.err.println("Writing " + trueVizPath);
+            FileWriter fstream = new FileWriter(trueVizPath);
             BufferedWriter out = new BufferedWriter(fstream);
             BxDocumentToTrueVizWriter writer = new BxDocumentToTrueVizWriter();
             out.write(writer.write(bxDoc.getPages()));
             out.close();
             
-            System.out.println(" done");
             return nxmlPath;
         } catch (Exception e) {
             e.printStackTrace();
