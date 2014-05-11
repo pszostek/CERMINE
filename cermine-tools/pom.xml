@@ -25,6 +25,17 @@
             <version>${project.version}</version>
             <type>jar</type>
         </dependency>
+<dependency>
+	<groupId>org.functionaljava</groupId>
+	<artifactId>functionaljava</artifactId>
+	<version>3.0</version>
+</dependency>
+<dependency>
+	<groupId>org.codehaus.jsr166-mirror</groupId>
+	<artifactId>extra166y</artifactId>
+	<version>1.7.0</version>
+</dependency>
+            
     </dependencies>
 
     <profiles>

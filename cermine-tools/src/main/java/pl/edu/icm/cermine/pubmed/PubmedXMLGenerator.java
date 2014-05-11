@@ -21,6 +21,9 @@ package pl.edu.icm.cermine.pubmed;
 import java.io.*;
 import java.util.Map.Entry;
 import java.util.*;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.RecursiveAction;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -28,12 +31,15 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+
+import extra166y.ParallelArray;
 import pl.edu.icm.cermine.PdfBxStructureExtractor;
 import pl.edu.icm.cermine.evaluation.tools.CosineDistance;
 import pl.edu.icm.cermine.evaluation.tools.SmithWatermanDistance;
@@ -46,7 +52,65 @@ import pl.edu.icm.cermine.structure.model.*;
 import pl.edu.icm.cermine.structure.transformers.BxDocumentToTrueVizWriter;
 
 public class PubmedXMLGenerator {
+	private static class NlmPdfPathPair {
 
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result
+					+ ((nlmPath == null) ? 0 : nlmPath.hashCode());
+			result = prime * result
+					+ ((pdfPath == null) ? 0 : pdfPath.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			NlmPdfPathPair other = (NlmPdfPathPair) obj;
+			if (nlmPath == null) {
+				if (other.nlmPath != null)
+					return false;
+			} else if (!nlmPath.equals(other.nlmPath))
+				return false;
+			if (pdfPath == null) {
+				if (other.pdfPath != null)
+					return false;
+			} else if (!pdfPath.equals(other.pdfPath))
+				return false;
+			return true;
+		}
+
+		public String getNlmPath() {
+			return nlmPath;
+		}
+
+		public void setNlmPath(String nlmPath) {
+			this.nlmPath = nlmPath;
+		}
+
+		public String getPdfPath() {
+			return pdfPath;
+		}
+
+		public void setPdfPath(String pdfPath) {
+			this.pdfPath = pdfPath;
+		}
+
+		private String nlmPath;
+		private String pdfPath;
+        
+        public NlmPdfPathPair(String nlmPath, String pdfPath) {
+        	this.nlmPath = nlmPath;
+        	this.pdfPath = pdfPath;
+        }
+	}
     private static class LabelTrio {
 
         private BxZoneLabel label;
@@ -722,79 +786,126 @@ public class PubmedXMLGenerator {
         unlabeledZones.removeAll(toBeRemoved);
     }
     
+	static private List<NlmPdfPathPair> getPathPairs(String pubmedDirPath) {
+
+		List<NlmPdfPathPair> ret = new ArrayList<NlmPdfPathPair>();
+        File dir = new File(pubmedDirPath);
+        
+        for (File pdfFile : FileUtils.listFiles(dir, new String[]{"pdf"}, true)) {
+        	String pdfPath = pdfFile.getPath();
+        	String nxmlPath = StringTools.getNLMPath(pdfPath);
+        }
+        return ret;
+	}
+	static private String convertToTrueViz(NlmPdfPathPair pathPair) {
+        try { 
+            String pdfPath = pathPair.getPdfPath();
+            String nxmlPath = pathPair.getNlmPath();
+            
+            File xmlFile = new File(StringTools.getTrueVizPath(nxmlPath));
+            if (xmlFile.exists()) {
+            	return null;
+            }
+            
+            System.out.print(pdfPath+" ");
+
+            InputStream pdfStream = new FileInputStream(pdfPath);
+            InputStream nxmlStream = new FileInputStream(nxmlPath);
+
+            PubmedXMLGenerator datasetGenerator = new PubmedXMLGenerator();
+            datasetGenerator.setVerbose(false);
+            BxDocument bxDoc = datasetGenerator.generateTrueViz(pdfStream, nxmlStream);
+            
+            int keys = 0;
+            Set<BxZoneLabel> set = EnumSet.noneOf(BxZoneLabel.class);
+            int total = 0;
+            int known = 0;
+            for (BxZone z: bxDoc.asZones()) {
+                total++;
+                if (z.getLabel() != null) {
+                    known++;
+                    if (z.getLabel().isOfCategoryOrGeneral(BxZoneLabelCategory.CAT_METADATA)) {
+                        set.add(z.getLabel());
+                    }
+                    if (BxZoneLabel.REFERENCES.equals(z.getLabel())) {
+                        keys = 1;
+                    }
+                }
+            }
+            
+            if (set.contains(BxZoneLabel.MET_AFFILIATION)) {
+                keys++;
+            }
+            if (set.contains(BxZoneLabel.MET_AUTHOR)) {
+                keys++;
+            }
+            if (set.contains(BxZoneLabel.MET_BIB_INFO)) {
+                keys++;
+            }
+            if (set.contains(BxZoneLabel.MET_TITLE)) {
+                keys++;
+            }
+            int coverage = 0;
+            if (total > 0) {
+                coverage = known*100/total;
+            }
+            System.out.print(coverage+" "+set.size()+" "+keys);
+
+            FileWriter fstream = new FileWriter(
+                    StringTools.getTrueVizPath(nxmlPath).replace(".xml", "."+coverage+".cxml"));
+            BufferedWriter out = new BufferedWriter(fstream);
+            BxDocumentToTrueVizWriter writer = new BxDocumentToTrueVizWriter();
+            out.write(writer.write(bxDoc.getPages()));
+            out.close();
+            
+            System.out.println(" done");
+            return nxmlPath;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+	}
+	static private class ConvertToTrueViz extends RecursiveAction {
+
+		private List<NlmPdfPathPair> src;
+		private int low;
+		private int high;
+		
+		public ConvertToTrueViz(List<NlmPdfPathPair> src, int low, int high) {
+			super();
+			System.out.println("Invoke (" + low + ", " + high + ")");
+			this.src = src;
+			this.low = low;
+			this.high = high;
+		}
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		protected void compute() {
+			if (high - low > 128) {
+				int mid = (high + low) >>> 1;
+				invokeAll(new ConvertToTrueViz(src, low, mid),
+						  new ConvertToTrueViz(src, mid, high));
+			} else {
+				for(int i=low; i<high; ++i) {
+					convertToTrueViz(src.get(i));
+				}
+			}
+			
+		}
+	}
     public static void main(String[] args) {
         if (args.length != 1) {
             System.err.println("Usage: <pubmed directory>");
             System.exit(1);
         }
 	
-        File dir = new File(args[0]);
-        for (File pdfFile : FileUtils.listFiles(dir, new String[]{"pdf"}, true)) {
-            try { 
-                String pdfPath = pdfFile.getPath();
-                String nxmlPath = StringTools.getNLMPath(pdfPath);
-                
-                File xmlFile = new File(StringTools.getTrueVizPath(nxmlPath));
-                if (xmlFile.exists()) {
-                    continue;
-                }
-                
-                System.out.print(pdfPath+" ");
-
-                InputStream pdfStream = new FileInputStream(pdfPath);
-                InputStream nxmlStream = new FileInputStream(nxmlPath);
-
-                PubmedXMLGenerator datasetGenerator = new PubmedXMLGenerator();
-                datasetGenerator.setVerbose(false);
-                BxDocument bxDoc = datasetGenerator.generateTrueViz(pdfStream, nxmlStream);
-                
-                int keys = 0;
-                Set<BxZoneLabel> set = EnumSet.noneOf(BxZoneLabel.class);
-                int total = 0;
-                int known = 0;
-                for (BxZone z: bxDoc.asZones()) {
-                    total++;
-                    if (z.getLabel() != null) {
-                        known++;
-                        if (z.getLabel().isOfCategoryOrGeneral(BxZoneLabelCategory.CAT_METADATA)) {
-                            set.add(z.getLabel());
-                        }
-                        if (BxZoneLabel.REFERENCES.equals(z.getLabel())) {
-                            keys = 1;
-                        }
-                    }
-                }
-                
-                if (set.contains(BxZoneLabel.MET_AFFILIATION)) {
-                    keys++;
-                }
-                if (set.contains(BxZoneLabel.MET_AUTHOR)) {
-                    keys++;
-                }
-                if (set.contains(BxZoneLabel.MET_BIB_INFO)) {
-                    keys++;
-                }
-                if (set.contains(BxZoneLabel.MET_TITLE)) {
-                    keys++;
-                }
-                int coverage = 0;
-                if (total > 0) {
-                    coverage = known*100/total;
-                }
-                System.out.print(coverage+" "+set.size()+" "+keys);
-
-                FileWriter fstream = new FileWriter(
-                        StringTools.getTrueVizPath(nxmlPath).replace(".xml", "."+coverage+".cxml"));
-                BufferedWriter out = new BufferedWriter(fstream);
-                BxDocumentToTrueVizWriter writer = new BxDocumentToTrueVizWriter();
-                out.write(writer.write(bxDoc.getPages()));
-                out.close();
-                
-                System.out.println(" done");
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+        List<NlmPdfPathPair> pathPairs = getPathPairs(args[0]);
+        RecursiveAction ra = new ConvertToTrueViz(pathPairs, 0, pathPairs.size());
+        ForkJoinPool fjpool = new ForkJoinPool(1);
+        fjpool.invoke(ra);
+        
     }
 
 }
