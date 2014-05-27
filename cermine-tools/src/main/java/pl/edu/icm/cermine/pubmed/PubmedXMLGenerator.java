@@ -601,7 +601,7 @@ public class PubmedXMLGenerator {
         			@Override 
         			public int compare(LabelTrio t1, LabelTrio t2) {
         				Double simDif = t1.alignment / t1.entryTokens.size() - t2.alignment / t2.entryTokens.size();
-        				if (Math.abs(simDif) < 0.0001) {
+        				if (Math.abs(simDif) < 0.0000001) {
         					return t2.entryTokens.size() - t1.entryTokens.size();
         				}
         				if (simDif > 0) {
@@ -677,7 +677,7 @@ public class PubmedXMLGenerator {
         			@Override 
         			public int compare(LabelTrio t1, LabelTrio t2) {
         				Double simDif = t1.alignment / t1.entryTokens.size() - t2.alignment / t2.entryTokens.size();
-        				if (Math.abs(simDif) < 0.001) {
+        				if (Math.abs(simDif) < 0.0000001) {
         					return t2.entryTokens.size() - t1.entryTokens.size();
         				}
         				if (simDif > 0) {
