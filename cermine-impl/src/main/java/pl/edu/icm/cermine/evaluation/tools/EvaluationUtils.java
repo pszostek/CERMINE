@@ -63,7 +63,7 @@ public class EvaluationUtils {
             }
         }
     }
-    
+ 
     public static class DocumentsIterator implements Iterable<BxDocument> {
 
     	private File dir;
