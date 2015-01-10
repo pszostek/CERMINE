@@ -176,7 +176,7 @@ public class LibSVMExporter {
 		File[] files = inputDirFile.listFiles(new FilenameFilter(){
 			@Override
 			public boolean accept(File dir, String name) {
-				if(name.endsWith(".xml")) {
+				if(name.endsWith(".cxml")) {
 					return true;
 				}
 				return false;
@@ -187,6 +187,7 @@ public class LibSVMExporter {
 
         Parallel.forEach(filesSet, new Function<File, Void>() {
         	public Void apply(File obj) {
+        		System.out.println("Working on " + obj.getName());
         		try {
 					exporter.treatFile(obj);
 				} catch (IOException e) {

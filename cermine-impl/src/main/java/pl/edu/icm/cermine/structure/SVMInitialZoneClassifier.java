@@ -63,7 +63,6 @@ public class SVMInitialZoneClassifier extends SVMZoneClassifier {
         vectorBuilder.setFeatureCalculators(Arrays.<FeatureCalculator<BxZone, BxPage>>asList(
         		new AffiliationFeature(),
                 new AuthorFeature(),
-                new AuthorNameRelativeFeature(),
                 new BibinfoFeature(),
         		new BracketRelativeCount(),
         		new BracketedLineRelativeCount(),
@@ -71,7 +70,6 @@ public class SVMInitialZoneClassifier extends SVMZoneClassifier {
                 new CharCountRelativeFeature(),
                 new CommaCountFeature(),
                 new CommaRelativeCountFeature(),
-                new ContributionFeature(),
                 new ContainsPageNumberFeature(),
         		new CuePhrasesRelativeCountFeature(),
         		new DateFeature(),
@@ -93,7 +91,6 @@ public class SVMInitialZoneClassifier extends SVMZoneClassifier {
         		new IsFontBiggerThanNeighboursFeature(),
         		new IsGreatestFontOnPageFeature(),
         		new IsHighestOnThePageFeature(),
-        		new IsItemizeFeature(),
         		new IsWidestOnThePageFeature(),
         		new IsLastButOnePageFeature(),
         		new IsLastPageFeature(),

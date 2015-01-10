@@ -85,6 +85,8 @@ public enum BxZoneLabel {
     
     /** Document's copyright - 16 */
     MET_COPYRIGHT       (BxZoneLabelCategory.CAT_METADATA),
+    
+    MET_TITLE_AUTHOR	(BxZoneLabelCategory.CAT_METADATA),
 
     
     /** Body zones */
