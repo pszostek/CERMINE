@@ -185,8 +185,7 @@ public class LibSVMExporter {
 		Set<File> filesSet = new HashSet<File>(Arrays.asList(files));
 		final LibSVMExporter exporter = new LibSVMExporter(inputDirFile);
 
-        Parallel.forEach(filesSet, new Function<File, Void>() {
-        	public Void apply(File obj) {
+        for(File obj: filesSet) {
         		System.out.println("Working on " + obj.getName());
         		try {
 					exporter.treatFile(obj);
@@ -200,9 +199,7 @@ public class LibSVMExporter {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				return null;
-        	}
-        });
+        };
 		exporter.svmInitialFile.close();
 		exporter.svmMetaFile.close();
     }
