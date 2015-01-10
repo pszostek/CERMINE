@@ -45,8 +45,6 @@ import pl.edu.icm.cermine.tools.classification.general.BxDocsToTrainingSamplesCo
 import pl.edu.icm.cermine.tools.classification.general.TrainingSample;
 import pl.edu.icm.cermine.tools.classification.sampleselection.SampleFilter;
 
-import com.davidsoergel.conja.*;
-
 
 public class LibSVMExporter {
 	public HierarchicalReadingOrderResolver ror;
@@ -183,6 +181,7 @@ public class LibSVMExporter {
 			}
 		});
 		Set<File> filesSet = new HashSet<File>(Arrays.asList(files));
+		System.out.println(filesSet.size());
 		final LibSVMExporter exporter = new LibSVMExporter(inputDirFile);
 
         for(File obj: filesSet) {
