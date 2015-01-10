@@ -79,6 +79,7 @@ public class TrueVizToBxDocumentReader {
         ZONE_LABEL_MAP.put("table", BxZoneLabel.BODY_TABLE);
         ZONE_LABEL_MAP.put("table_caption", BxZoneLabel.BODY_TABLE_CAPTION);
         ZONE_LABEL_MAP.put("title", BxZoneLabel.MET_TITLE);
+        ZONE_LABEL_MAP.put("author_title", BxZoneLabel.MET_AUTHOR_TITLE);
         ZONE_LABEL_MAP.put("type", BxZoneLabel.MET_TYPE);
         ZONE_LABEL_MAP.put("unknown", BxZoneLabel.OTH_UNKNOWN);
     }
