@@ -171,6 +171,7 @@ public class LibSVMExporter {
         File inputDirFile = new File(inputDirPath);
 
         Integer docIdx = 0;
+        System.out.println(inputDirFile.getPath());
 		File[] files = inputDirFile.listFiles(new FilenameFilter(){
 			@Override
 			public boolean accept(File dir, String name) {
@@ -180,6 +181,7 @@ public class LibSVMExporter {
 				return false;
 			}
 		});
+		System.out.println(files);
 		Set<File> filesSet = new HashSet<File>(Arrays.asList(files));
 		System.out.println(filesSet.size());
 		final LibSVMExporter exporter = new LibSVMExporter(inputDirFile);
