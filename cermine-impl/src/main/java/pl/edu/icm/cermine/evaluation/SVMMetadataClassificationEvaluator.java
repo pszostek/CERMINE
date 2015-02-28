@@ -92,10 +92,18 @@ public class SVMMetadataClassificationEvaluator extends CrossvalidatingZoneClass
     
     @Override
     public List<TrainingSample<BxZoneLabel>> getSamples(String inputFile) throws AnalysisException {
-        DocumentsIterator it = new DocumentsIterator(inputFile);
-        List<TrainingSample<BxZoneLabel>> samples = BxDocsToTrainingSamplesConverter.getZoneTrainingSamples(it.iterator(), 
-                    getFeatureVectorBuilder(), null);
-        return ClassificationUtils.filterElements(samples, BxZoneLabelCategory.CAT_METADATA);
+    	List<TrainingSample<BxZoneLabel>> samples;
+		try {
+			samples = SVMZoneClassifier.loadProblem(inputFile, getFeatureVectorBuilder());
+			return ClassificationUtils.filterElements(samples, BxZoneLabelCategory.CAT_METADATA);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
+//        DocumentsIterator it = new DocumentsIterator(inputFile);
+//        List<TrainingSample<BxZoneLabel>> samples = BxDocsToTrainingSamplesConverter.getZoneTrainingSamples(it.iterator(), 
+//                    getFeatureVectorBuilder(), null);
+//        return ClassificationUtils.filterElements(samples, BxZoneLabelCategory.CAT_METADATA);
     }
     
 }

@@ -20,8 +20,12 @@ package pl.edu.icm.cermine.evaluation;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
+
 import libsvm.svm_parameter;
+
 import org.apache.commons.cli.ParseException;
+
 import pl.edu.icm.cermine.evaluation.tools.EvaluationUtils.DocumentsIterator;
 import pl.edu.icm.cermine.evaluation.tools.PenaltyCalculator;
 import pl.edu.icm.cermine.exception.AnalysisException;
@@ -80,10 +84,23 @@ public class SVMInitialZoneClassificationEvaluator extends CrossvalidatingZoneCl
 
     @Override
     public List<TrainingSample<BxZoneLabel>> getSamples(String inputFile) throws AnalysisException {
-        DocumentsIterator it = new DocumentsIterator(inputFile);
-        return BxDocsToTrainingSamplesConverter.getZoneTrainingSamples(it.iterator(), 
-                    getFeatureVectorBuilder(),
-                    BxZoneLabel.getLabelToGeneralMap());
+    	List<TrainingSample<BxZoneLabel>> samples;
+		try {
+			samples = SVMZoneClassifier.loadProblem(inputFile, getFeatureVectorBuilder());
+			Map<BxZoneLabel,BxZoneLabel> labelMap = BxZoneLabel.getLabelToGeneralMap();
+			for(TrainingSample<BxZoneLabel> sample: samples) {
+                sample.setLabel(labelMap.get(sample.getLabel()));
+			}
+			return samples;
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
+//        DocumentsIterator it = new DocumentsIt
+//        		erator(inputFile);
+//        return BxDocsToTrainingSamplesConverter.getZoneTrainingSamples(it.iterator(), 
+//                    getFeatureVectorBuilder(),
+//                    BxZoneLabel.getLabelToGeneralMap());
     }
 }
 
